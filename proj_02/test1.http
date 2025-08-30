@@ -1,0 +1,28 @@
+@host = http://localhost:5262
+
+### Greet
+GET {{host}}/greet
+
+
+
+### Create complaint with attachment
+POST {{host}}/complaints
+Content-Type: application/json
+
+{
+  "residentId": 1,
+  "subject": "park restroom leak",
+  "description": "Water under stairs",
+  "priority": 2,
+  "attachmentPaths": ["/uploads/complaints/42/leak_pipe.jpeg"]
+}
+
+### See complaints
+GET {{host}}/complaints
+Content-Type: application/json
+
+
+### See leak_pipe image
+GET {{host}}/uploads/complaints/42/leak_pipe.jpeg
+Accept: image/jpeg
+

@@ -1,12 +1,39 @@
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Diagnostics;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Fix for enum serialization issues: Previously, POST requests required using number values (0,1,2)
+// instead of enum names (NOT_STARTED, STARTED, etc). This converter allows using string names in JSON.
+builder.Services.ConfigureHttpJsonOptions(options => {
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 
 var app = builder.Build();
 
 // 1) Enable static file serving from ./wwwroot (create this folder at project root)
 //    Example: wwwroot/uploads/complaints/42/pipe_leak.jpg -> /uploads/complaints/42/pipe_leak.jpg
 app.UseStaticFiles();
+
+// simple logging middleware, ctx = httpcontext instacne
+app.Use(async (ctx, next) =>
+{
+    var sw = System.Diagnostics.Stopwatch.StartNew();
+    var log = ctx.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("ReqLog");
+
+    var path = $"{ctx.Request.Path}{ctx.Request.QueryString}";
+    log.LogInformation("REQUEST {m} {p}", ctx.Request.Method, path);
+
+    await next();
+
+    sw.Stop();
+    log.LogInformation("RESPONSE {code} in {ms} ms", ctx.Response.StatusCode, sw.ElapsedMilliseconds);
+});
+
+
 
 // 2) --- In-memory data (simple for learning; swap to DB later) ---
 var residents = new List<Resident>
@@ -41,10 +68,13 @@ app.MapPost("/complaints", (CreateComplaintDto dto) =>
         Subject: dto.Subject.Trim(),
         Description: dto.Description.Trim(),
         Status: ResolvedStatus.NOT_STARTED,
-        Priority: dto.Priority ?? PriorityLevel.Normal,
+        Priority: dto.Priority ?? PriorityLevel.NORMAL,
         CreatedAtUtc: DateTimeOffset.UtcNow,
         UpdatedAtUtc: null,
-        AttachmentPaths: dto.AttachmentPaths?.Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p.Trim()).ToList() ?? new List<string>(),
+        AttachmentPaths: dto.AttachmentPaths?
+                            .Where(p => !string.IsNullOrWhiteSpace(p))
+                            .Select(p => p.Trim())
+                            .ToList() ?? new List<string>(),
         LocationNote: dto.LocationNote
     );
 
@@ -53,7 +83,19 @@ app.MapPost("/complaints", (CreateComplaintDto dto) =>
     // Return 201 with a Location that points to the new resource
     return Results.Created($"/complaints/{complaint.ComplaintId}", complaint);
 })
+.AddEndpointFilter(async (invocationContext, next) =>
+{
+    var dto = invocationContext.Arguments.OfType<CreateComplaintDto>().FirstOrDefault();
+    var logger = invocationContext.HttpContext.RequestServices
+        .GetRequiredService<ILoggerFactory>().CreateLogger("ReqLog");
+
+    logger.LogInformation("Complaint created: residentId={rid}, subject=\"{sub}\"",
+        dto?.ResidentId, dto?.Subject);
+
+    return await next(invocationContext);
+})
 .WithName("CreateComplaint");
+
 
 // List complaints with optional filters (?status=STARTED&priority=High&residentId=2)
 app.MapGet("/complaints", (string? status, string? priority, int? residentId) =>
@@ -122,7 +164,7 @@ app.Run();
 
 // Simple enums for status/priority
 public enum ResolvedStatus { NOT_STARTED, STARTED, COMPLETE }
-public enum PriorityLevel { Low, Normal, High }  // Low=0, Normal=1, High=2):
+public enum PriorityLevel { LOW, NORMAL, HIGH }  // Low=0, Normal=1, High=2):
 
 public record Resident(int ResidentId, string Name, string Unit, string Email);
 
@@ -153,3 +195,6 @@ public record CreateComplaintDto(
 public record UpdateStatusDto(
     ResolvedStatus Status
 );
+
+
+

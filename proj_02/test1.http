@@ -13,7 +13,7 @@ Content-Type: application/json
   "residentId": 1,
   "subject": "park restroom leak",
   "description": "Water under stairs",
-  "priority": 2,
+  "priority": "HIGH",
   "attachmentPaths": ["/uploads/complaints/42/leak_pipe.jpeg"]
 }
 
@@ -26,3 +26,24 @@ Content-Type: application/json
 GET {{host}}/uploads/complaints/42/leak_pipe.jpeg
 Accept: image/jpeg
 
+
+### See started complaints 
+GET {{host}}/complaints?status=STARTED
+Content-Type: application/json
+
+
+### See NOT_STARTED complaints
+GET {{host}}/complaints?status=NOT_STARTED
+Content-Type: application/json
+
+### Create bad complaint
+POST {{host}}/complaints
+Content-Type: application/json
+
+{
+  "resideBADntId": 1,
+  "subject": "park restroom leak",
+  "description": "Water under stairs",
+  "priority": "HIGH",
+  "attachmentPaths": ["/uploads/complaints/42/leak_pipe.jpeg"]
+}

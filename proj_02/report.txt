@@ -1,0 +1,43 @@
+Report
+###########################################################################
+
+
+Custom Middleware
+
+    Request/Response Logging: logs method + path before request, status + elapsed time after. Special filter logs residentId and subject when posting complaints.
+
+    Exception Handling: wraps next middleware in try/catch, logs exception, returns JSON error with status 500.
+
+    Response Modification: adds X-Api-Version and X-Correlation-Id headers before body starts.
+
+Built-in Middleware
+
+    Static Files: serves /uploads/... from wwwroot. Used for complaint attachments.
+
+    CORS: allows requests from http://localhost:3000. Handles preflight OPTIONS requests and sets Access-Control-Allow-Origin.
+
+Middleware Sequence
+
+    Static Files → handles image requests (short-circuits pipeline).
+
+    Logging → logs every request/response.
+
+    Exception → catches unhandled errors.
+
+    Headers → sets version and correlation id.
+
+    CORS → inspects Origin and adds cross-origin headers.
+
+    Endpoints → complaints/residents API.
+
+Demonstration
+
+    React app at http://localhost:3000 calls API.
+
+    Browser sends preflight OPTIONS. Logging logs it.
+
+    CORS middleware checks origin, adds Access-Control-Allow-Origin.
+
+    Response headers middleware appends X-Api-Version + X-Correlation-Id.
+
+    Response returns, browser allows real AJAX call.

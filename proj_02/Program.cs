@@ -72,9 +72,16 @@ using (var conn = OpenConnection())
 //    Example: wwwroot/uploads/complaints/42/pipe_leak.jpg -> /uploads/complaints/42/pipe_leak.jpg
 app.UseStaticFiles();
 
+
 // simple request/resposne logging middleware, ctx = httpcontext instacne
 app.Use(async (ctx, next) =>
 {
+    // Skip logging for static files
+    if (ctx.Request.Path.StartsWithSegments("/uploads"))
+    {
+        await next();
+        return;
+    }
     var sw = System.Diagnostics.Stopwatch.StartNew();
     var log = ctx.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("ReqLog");
 
@@ -86,8 +93,7 @@ app.Use(async (ctx, next) =>
     sw.Stop();
     log.LogInformation("RESPONSE {code} in {ms} ms", ctx.Response.StatusCode, sw.ElapsedMilliseconds);
 });
-
-//exception handling middleware
+// exception handling middleware
 app.Use(async (ctx, next) =>
 {
     try
@@ -110,6 +116,7 @@ app.Use(async (ctx, next) =>
     }
 });
 
+
 // HEADERS/repsonse middleware: set headers before the response begins
 app.Use(async (ctx, next) =>
 {
@@ -120,6 +127,7 @@ app.Use(async (ctx, next) =>
 });
 
 app.UseCors("AllowReactApp");
+
 
 
 

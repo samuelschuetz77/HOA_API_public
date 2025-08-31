@@ -40,10 +40,37 @@ Content-Type: application/json
 POST {{host}}/complaints
 Content-Type: application/json
 
-{
+{{}kfa
   "resideBADntId": 1,
-  "subject": "park restroom leak",
+  "subject": "Bad Request",
   "description": "Water under stairs",
   "priority": "HIGH",
   "attachmentPaths": ["/uploads/complaints/42/leak_pipe.jpeg"]
 }
+
+### Get complaint by ID
+GET {{host}}/complaints/1
+Content-Type: application/json
+
+### Update complaint status
+PATCH {{host}}/complaints/2/status
+Content-Type: application/json
+
+{
+  "status": "STARTED"
+}
+
+### List residents
+GET {{host}}/residents
+Content-Type: application/json
+
+### Get resident by ID
+GET {{host}}/residents/1
+Content-Type: application/json
+
+### CORS preflight (simulates browser preflight from React)
+OPTIONS {{host}}/complaints
+Origin: http://localhost:3000
+Access-Control-Request-Method: POST
+
+

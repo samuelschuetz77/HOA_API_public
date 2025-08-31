@@ -2,9 +2,17 @@ Report
 ###########################################################################
 
 
+Database Integration
+
+    SQLite Database: Using SQLite with Dapper ORM for data persistence
+    - Database file: hoa.db
+    - Tables: Resident and Complaint with proper foreign key relationship
+    - Uses DbComplaint DTO for mapping between database strings and domain model types
+    - Handles enum and date conversions between string DB storage and typed C# models
+
 Custom Middleware
 
-    Request/Response Logging: logs method + path before request, status + elapsed time after. Special filter logs residentId and subject when posting complaints.
+    Request/Response Logging: logs method + path before request, status + elapsed time after. Special filter logs residentId and subject when posting complaints. Requests to uploads skip logging middleware because i am conditionally deactivating at least one piece of my middleware pipeline
 
     Exception Handling: wraps next middleware in try/catch, logs exception, returns JSON error with status 500.
 
@@ -28,7 +36,7 @@ Middleware Sequence
 
     CORS → inspects Origin and adds cross-origin headers.
 
-    Endpoints → complaints/residents API.
+    Endpoints → complaints/residents API backed by SQLite database.
 
 Demonstration
 
@@ -41,3 +49,5 @@ Demonstration
     Response headers middleware appends X-Api-Version + X-Correlation-Id.
 
     Response returns, browser allows real AJAX call.
+
+    Data persists between application restarts in SQLite database.

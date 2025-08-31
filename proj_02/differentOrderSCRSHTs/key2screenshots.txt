@@ -1,0 +1,98 @@
+
+Experiment #1: Exception handling MW before request/response Middleware:
+- *In each image, the selected/highlighted code in the http file corresponds with response.   
+        -normal outputs map to images: 1
+        -after switching order images: 2
+
+
+
+What chat said would happen it:
+
+If logging goes before exception handling (your current setup):
+
+Logger runs first → prints REQUEST ....
+
+Next middleware (exception handler) wraps everything inside try/catch.
+
+If an exception is thrown later:
+
+Exception handler catches it.
+
+Logger (after await next()) prints RESPONSE 500 in X ms.
+
+You see both request and response logs, even for errors.
+
+👉 This order = full visibility: every request is logged, including its final status.
+
+
+If logging goes after exception handling:
+
+Exception handler runs first, wrapping the pipeline.
+
+Logger is downstream.
+
+If an exception is thrown:
+
+Exception handler catches it and returns the error response.
+
+Logger never sees the request at all (because the exception short-circuits before it).
+
+You lose “REQUEST …” and “RESPONSE …” logs for failed requests.
+
+👉 This order = missing logs for errors, which is usually not what you want.
+
+That is why logs were lost ?
+
+normal console: nfo: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5262
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: C:\Users\samue\OneDrive\Desktop\Backend Dev Class\proj_02\proj_02
+info: ReqLog[0]
+      REQUEST POST /complaints
+fail: ExceptionMiddleware[0]
+      Unhandled exception for /complaints
+      Microsoft.AspNetCore.Http.BadHttpRequestException: Failed to read parameter "CreateComplaintDto dto" from the request body as JSON.
+       ---> System.Text.Json.JsonException: '{' is an invalid start of a property name. Expected a '"'. Path: $ | LineNumber: 0 | BytePositionInLine: 1.     
+       ---> System.Text.Json.JsonReaderException: '{' is an invalid start of a property name. Expected a '"'. LineNumber: 0 | BytePositionInLine: 1.
+         at System.Text.Json.ThrowHelper.ThrowJsonReaderException(Utf8JsonReader& json, ExceptionResource resource, Byte nextByte, ReadOnlySpan`1 bytes)     
+         at System.Text.Json.Utf8JsonReader.ReadSingleSegment()
+         at System.Text.Json.Utf8JsonReader.Read()
+         at System.Text.Json.Serialization.Converters.ObjectWithParameterizedConstructorConverter`1.ReadConstructorArgumentsWithContinuation(ReadStack& state, Utf8JsonReader& reader, JsonSerializerOptions options)
+         at System.Text.Json.Serialization.Converters.ObjectWithParameterizedConstructorConverter`1.OnTryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value)
+         at System.Text.Json.Serialization.JsonConverter`1.TryRead(Utf8JsonReader& reader, Type typeToConvert, JsonSerializerOptions options, ReadStack& state, T& value, Boolean& isPopulatedValue)
+         at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)       
+         --- End of inner exception stack trace ---
+         at System.Text.Json.ThrowHelper.ReThrowWithPath(ReadStack& state, JsonReaderException ex)
+         at System.Text.Json.Serialization.JsonConverter`1.ReadCore(Utf8JsonReader& reader, T& value, JsonSerializerOptions options, ReadStack& state)       
+         at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.ContinueDeserialize(ReadBufferState& bufferState, JsonReaderState& jsonReaderState, ReadStack& readStack, T& value)
+         at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.DeserializeAsync(Stream utf8Json, CancellationToken cancellationToken)
+         at System.Text.Json.Serialization.Metadata.JsonTypeInfo`1.DeserializeAsObjectAsync(Stream utf8Json, CancellationToken cancellationToken)
+         at Microsoft.AspNetCore.Http.HttpRequestJsonExtensions.ReadFromJsonAsync(HttpRequest request, JsonTypeInfo jsonTypeInfo, CancellationToken cancellationToken)
+         at Microsoft.AspNetCore.Http.HttpRequestJsonExtensions.ReadFromJsonAsync(HttpRequest request, JsonTypeInfo jsonTypeInfo, CancellationToken cancellationToken)
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.<HandleRequestBodyAndCompileRequestDelegateForJson>g__TryReadBodyAsync|101_0(HttpContext httpContext, Type bodyType, String parameterTypeName, String parameterName, Boolean allowEmptyRequestBody, Boolean throwOnBadRequest, JsonTypeInfo jsonTypeInfo)    
+         --- End of inner exception stack trace ---
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.Log.InvalidJsonRequestBody(HttpContext httpContext, String parameterTypeName, String parameterName, Exception exception, Boolean shouldThrow)
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.<HandleRequestBodyAndCompileRequestDelegateForJson>g__TryReadBodyAsync|101_0(HttpContext httpContext, Type bodyType, String parameterTypeName, String parameterName, Boolean allowEmptyRequestBody, Boolean throwOnBadRequest, JsonTypeInfo jsonTypeInfo)    
+         at Microsoft.AspNetCore.Http.RequestDelegateFactory.<>c__DisplayClass101_2.<<HandleRequestBodyAndCompileRequestDelegateForJson>b__2>d.MoveNext()    
+      --- End of stack trace from previous location ---
+         at Program.<>c.<<<Main>$>b__0_5>d.MoveNext() in C:\Users\samue\OneDrive\Desktop\Backend Dev Class\proj_02\proj_02\Program.cs:line 122
+      --- End of stack trace from previous location ---
+         at Program.<>c.<<<Main>$>b__0_4>d.MoveNext() in C:\Users\samue\OneDrive\Desktop\Backend Dev Class\proj_02\proj_02\Program.cs:line 96
+info: ReqLog[0]
+      RESPONSE 500 in 50 ms
+
+
+      switched  console: 
+      AspNetCore.Diagnostics.DeveloperExceptionPageMiddleware[1]
+      An unhandled exception has occurred while executing the request.
+      System.Runtime.CompilerServices.HotReloadException: Attempted to invoke a deleted lambda or local function implementation. This can happen when lambda       System.Runtime.CompilerServices.HotReloadException: Attempted to invoke a deleted lambda or local function implementation. This can happen when lambda or local function is deleted while the application is running.
+         at Program.<>c.<<Main>$>b__0_4(HttpContext ctx, Func`1 next)
+         at Program.<>c.<<<Main>$>b__0_3>d.MoveNext()
+      --- End of stack trace from previous location ---
+      --- End of stack trace from previous location ---
+         at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+         at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)

@@ -371,11 +371,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\samue\\OneDrive\\Desktop\\Backend Dev Class\\proj_02\\proj_02\\proj_02.csproj",
+      "projectUniqueName": "C:\\Users\\samue\\OneDrive\\Desktop\\Backend Dev Class\\HOA_API\\HOA_API_public\\proj_02\\proj_02.csproj",
       "projectName": "proj_02",
-      "projectPath": "C:\\Users\\samue\\OneDrive\\Desktop\\Backend Dev Class\\proj_02\\proj_02\\proj_02.csproj",
+      "projectPath": "C:\\Users\\samue\\OneDrive\\Desktop\\Backend Dev Class\\HOA_API\\HOA_API_public\\proj_02\\proj_02.csproj",
       "packagesPath": "C:\\Users\\samue\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\samue\\OneDrive\\Desktop\\Backend Dev Class\\proj_02\\proj_02\\obj\\",
+      "outputPath": "C:\\Users\\samue\\OneDrive\\Desktop\\Backend Dev Class\\HOA_API\\HOA_API_public\\proj_02\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

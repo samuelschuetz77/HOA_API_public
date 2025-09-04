@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "R48gsdGf+m0=",
+  "dgSpecHash": "kx7BPngbCmg=",
   "success": true,
-  "projectFilePath": "C:\\Users\\samue\\OneDrive\\Desktop\\Backend Dev Class\\proj_02\\proj_02\\proj_02.csproj",
+  "projectFilePath": "C:\\Users\\samue\\OneDrive\\Desktop\\Backend Dev Class\\HOA_API\\HOA_API_public\\proj_02\\proj_02.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\samue\\.nuget\\packages\\dapper\\2.1.66\\dapper.2.1.66.nupkg.sha512",
     "C:\\Users\\samue\\.nuget\\packages\\microsoft.data.sqlite\\9.0.8\\microsoft.data.sqlite.9.0.8.nupkg.sha512",

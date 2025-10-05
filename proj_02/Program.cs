@@ -71,6 +71,8 @@ using (var conn = OpenConnection())
 // 1) Enable static file serving from ./wwwroot (create this folder at project root)
 //    Example: wwwroot/uploads/complaints/42/pipe_leak.jpg -> /uploads/complaints/42/pipe_leak.jpg
 app.UseStaticFiles();
+app.UseCors("AllowReactApp");
+
 
 
 // simple request/resposne logging middleware, ctx = httpcontext instacne
@@ -126,7 +128,7 @@ app.Use(async (ctx, next) =>
     await next(); // let the rest of the pipeline run
 });
 
-app.UseCors("AllowReactApp");
+
 
 
 
